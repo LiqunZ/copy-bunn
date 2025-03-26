@@ -1,0 +1,9 @@
+#!/bin/bash
+#SBATCH -N 1      # nodes requested
+#SBATCH --job-name=barbell-gat
+#SBATCH --output=barbell-gat.out
+#SBATCH --error=barbell-gat.err
+#SBATCH --mem=36000
+#SBATCH --qos=medium
+#SBATCH --gres=gpu:0
+srun -u /slurm-storage/jacbam/.conda/envs/bdl/bin/python -m newsynth.run_multiple --yaml_name barbell-gat

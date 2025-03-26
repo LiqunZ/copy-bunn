@@ -1,0 +1,9 @@
+#!/bin/bash
+#SBATCH -N 1      # nodes requested
+#SBATCH --job-name=clique-cheb
+#SBATCH --output=clique-cheb.out
+#SBATCH --error=clique-cheb.err
+#SBATCH --mem=36000
+#SBATCH --qos=medium
+#SBATCH --gres=gpu:0
+srun -u /slurm-storage/jacbam/.conda/envs/bdl/bin/python -m newsynth.run_multiple --yaml_name clique-cheb

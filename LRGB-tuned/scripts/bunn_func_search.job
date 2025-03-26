@@ -1,0 +1,52 @@
+#!/bin/bash
+
+num_bundles=(8)
+taus=(1.)
+dim_inners=(256)
+num_layers=(4)
+num_gnn_layers=(1)
+gnn_dims=(32)
+multiscale_ls=(True)
+seed=$(date +%s | awk '{print substr($1,length($1)-9)}')
+base_lr_ls=(0.005 0.006 0.007 0.008 0.009 0.004 0.003 0.002)
+dropout_ls=(0.1)
+weight_decay_ls=(0.2 0.19 0.18 0.17 0.16 0.15)
+max_epoch_ls=(500)
+
+echo $seed
+
+((seed++))
+job_file="bunn_search/${seed}.job"
+echo "#!/bin/bash" >> "$job_file"
+echo "#SBATCH -N 1" >> "$job_file"
+echo "#SBATCH --job-name=specbunn" >> "$job_file"
+echo "#SBATCH --output=shtspecbunn.out" >> "$job_file"
+echo "#SBATCH --error=shtspecbunn.err" >> "$job_file"
+echo "#SBATCH --qos=medium" >> "$job_file"
+echo "#SBATCH --gres=gpu:1" >> "$job_file"
+echo "" >> "$job_file"
+echo $seed
+
+for num_gnn_layer in "${num_gnn_layers[@]}"; do
+    for num_bundle in "${num_bundles[@]}"; do
+        for tau in "${taus[@]}"; do
+            for gnn_dim in "${gnn_dims[@]}"; do
+                for num_layer in "${num_layers[@]}"; do
+                    for dim_inner in "${dim_inners[@]}"; do
+                        for multiscale in "${multiscale_ls[@]}"; do
+                            for base_lr in "${base_lr_ls[@]}"; do
+                                for dropout in "${dropout_ls[@]}"; do
+                                    for weight_decay in "${weight_decay_ls[@]}"; do
+                                        for max_epoch in "${max_epoch_ls[@]}"; do
+                                            echo "srun -u /slurm-storage/jacbam/.conda/envs/graphgps/bin/python main.py --cfg configs/bundle/peptides-func-specbunn.yaml wandb.use True bundle.num_bundle $num_bundle seed $seed bundle.tau $tau gnn.dim_inner $dim_inner gnn.layers_mp $num_layer bundle.num_gnn $num_gnn_layer bundle.multiscale $multiscale bundle.gnn_dim $gnn_dim gnn.dropout $dropout optim.base_lr $base_lr optim.weight_decay $weight_decay optim.max_epoch $max_epoch" >> "$job_file"
+                                        done
+                                    done
+                                done
+                            done
+                        done
+                    done
+                done
+            done
+        done
+    done
+done

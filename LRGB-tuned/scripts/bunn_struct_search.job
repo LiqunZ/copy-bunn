@@ -1,0 +1,51 @@
+#!/bin/bash
+
+num_bundles=(16)
+taus=(1.)
+dim_inners=(224)
+num_layers=(3)
+num_gnn_layers=(0)
+gnn_dims=(32 64)
+multiscale_ls=(True)
+seed=$(date +%s | awk '{print substr($1,length($1)-9)}')
+base_lr_ls=(0.01 0.011 0.012 0.013 0.014 0.009 0.008 0.007 0.008)
+dropout_ls=(0.1)
+max_epoch_ls=(500)
+weight_decay_ls=(0.15 0.2)
+
+echo $seed
+
+for num_gnn_layer in "${num_gnn_layers[@]}"; do
+    for num_bundle in "${num_bundles[@]}"; do
+        for tau in "${taus[@]}"; do
+            for num_layer in "${num_layers[@]}"; do
+                for dim_inner in "${dim_inners[@]}"; do
+                    for multiscale in "${multiscale_ls[@]}"; do
+                        for dropout in "${dropout_ls[@]}"; do
+                            for weight_decay in "${weight_decay_ls[@]}"; do
+                                for gnn_dim in "${gnn_dims[@]}"; do
+                                    ((seed++))
+                                    job_file="bunn_search/${seed}.job"
+                                    echo "#!/bin/bash" >> "$job_file"
+                                    echo "#SBATCH -N 1" >> "$job_file"
+                                    echo "#SBATCH --job-name=specbunn" >> "$job_file"
+                                    echo "#SBATCH --output=specbunn.out" >> "$job_file"
+                                    echo "#SBATCH --error=specbunn.err" >> "$job_file"
+                                    echo "#SBATCH --qos=medium" >> "$job_file"
+                                    echo "#SBATCH --gres=gpu:1" >> "$job_file"
+                                    echo "" >> "$job_file"
+                                    for max_epoch in "${max_epoch_ls[@]}"; do
+                                        for base_lr in "${base_lr_ls[@]}"; do
+                                            echo $seed
+                                            echo "srun -u /slurm-storage/jacbam/.conda/envs/graphgps/bin/python main.py --cfg configs/bundle/peptides-struct-specbunn.yaml wandb.use True bundle.num_bundle $num_bundle seed $seed bundle.tau $tau gnn.dim_inner $dim_inner gnn.layers_mp $num_layer bundle.num_gnn $num_gnn_layer bundle.multiscale $multiscale bundle.gnn_dim $gnn_dim optim.base_lr $base_lr gnn.dropout $dropout optim.max_epoch $max_epoch optim.weight_decay $weight_decay" >> "$job_file"
+                                        done
+                                    done
+                                done
+                            done
+                        done
+                    done
+                done
+            done
+        done
+    done
+done

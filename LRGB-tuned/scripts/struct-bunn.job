@@ -1,0 +1,5 @@
+
+python  main.py --cfg configs/bundle/peptides-struct-bunn.yaml seed 0
+python  main.py --cfg configs/bundle/peptides-struct-bunn.yaml seed 1
+python  main.py --cfg configs/bundle/peptides-struct-bunn.yaml seed 2
+python  main.py --cfg configs/bundle/peptides-struct-bunn.yaml seed 3

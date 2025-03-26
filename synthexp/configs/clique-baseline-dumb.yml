@@ -1,0 +1,26 @@
+exp:
+  exp_name: ['clique']
+  wandb: [True]
+  num_seeds: [4]
+  device: ['cpu']
+  seed: [93428]
+data:
+  dataset: ['clique']
+  samples: [100]
+  task_type: ['mse_regression']
+  eval_metric: ['mse']
+  minimize: [True]
+  num_nodes: [10, 25, 50, 100]
+model:
+  model_name: ['ConstantFull']
+  layer_type: ['MLP']
+  input_dim: [1]
+  hidden_dim: [10]
+  out_dim: [1]
+  num_layers: [2]
+optim:
+  lr: [0.001]
+  lr_scheduler: ['ReduceLROnPlateau']
+  early_stop: [True]
+  epochs: [1]
+  batch_size: [1]
